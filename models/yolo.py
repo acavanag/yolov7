@@ -343,7 +343,8 @@ class MT(nn.Module):
         zi = []
         attn = [None] * self.nl
         iou = [None] * self.nl
-        self.training |= self.export
+        # self.training |= self.export
+        self.training = False
         output = dict()
         for i in range(self.nl):
             if self.attn is not None:
@@ -370,20 +371,21 @@ class MT(nn.Module):
                 y[..., 0:2] = (y[..., 0:2] * 3. - 1.0 + self.grid[i]) * self.stride[i]  # xy
                 y[..., 2:4] = (y[..., 2:4] * 2) ** 2 * self.anchor_grid[i]  # wh
                 z.append(y.view(bs, -1, self.no))
-        output["mask_iou"] = None
-        if not self.training:
-            output["test"] = torch.cat(z, 1)
-            if self.attn is not None:
-                output["attn"] = torch.cat(za, 1)
-            if self.mask_iou:
-                output["mask_iou"] = torch.cat(zi, 1).sigmoid()
+        # output["mask_iou"] = None
+        # if not self.training:
+        output["test"] = torch.cat(z, 1)
+        if self.attn is not None:
+            output["attn"] = torch.cat(za, 1)
+        if self.mask_iou:
+            pass
+            # output["mask_iou"] = torch.cat(zi, 1).sigmoid()
              
-        else:
-            if self.attn is not None:
-                output["attn"] = attn
-            if self.mask_iou:
-                output["mask_iou"] = iou
-        output["bbox_and_cls"] = x[0]
+        # else:
+        #     if self.attn is not None:
+        #         output["attn"] = attn
+        #     if self.mask_iou:
+        #         output["mask_iou"] = iou
+        # output["bbox_and_cls"] = x[0]
         output["bases"] = x[1]
         output["sem"] = x[2]
         
